@@ -29,13 +29,14 @@
                                     v-model="gender"
                                     color="cyan"
                                     borderless
+                                    mandatory
                                 >
-                                    <v-btn value="women">
-                                        <span class="hidden-sm-and-down">Women</span>
+                                    <v-btn value="female">
+                                        <span class="hidden-sm-and-down">Female</span>
                                     </v-btn>
 
-                                    <v-btn value="men">
-                                        <span class="hidden-sm-and-down">Men</span>
+                                    <v-btn value="male">
+                                        <span class="hidden-sm-and-down">Male</span>
                                     </v-btn>
 
                                     <v-btn value="nb">
@@ -69,6 +70,7 @@
                                     v-model="age"
                                     color="cyan"
                                     borderless
+                                    mandatory
                                 >
                                     <v-btn value="0-10">
                                         <span class="hidden-sm-and-down">0-10</span>
@@ -128,6 +130,7 @@
                                 <v-btn-toggle
                                     v-model="smoking"
                                     color="cyan"
+                                    mandatory
                                     borderless
                                     style="flex-flow:row wrap"
                                 >
@@ -186,6 +189,7 @@
                                     v-model="chest"
                                     color="cyan"
                                     borderless
+                                    mandatory
                                     style="flex-flow:row wrap"
                                 >
                                     <v-btn value="no">
@@ -233,6 +237,7 @@
                                     v-model="people"
                                     color="cyan"
                                     borderless
+                                    mandatory
                                     style="flex-flow:row wrap"
                                 >
                                     <v-btn value="full isolation">
@@ -281,6 +286,7 @@
                             <div class="mb-5">
                                 <v-btn-toggle
                                     v-model="oxygen"
+                            mandatory
                                     color="cyan"
                                     borderless
                                     style="flex-flow:row wrap"
@@ -293,8 +299,8 @@
                                         <span class="hidden-sm-and-down">90-95%</span>
                                     </v-btn>
 
-                                    <v-btn value="85-80%">
-                                        <span class="hidden-sm-and-down">85-80%</span>
+                                    <v-btn value="80-85%">
+                                        <span class="hidden-sm-and-down">80-85%</span>
                                     </v-btn>
 
                                     <v-btn value="< 80%">
@@ -328,6 +334,7 @@
                                 <v-btn-toggle
                                     v-model="illness"
                                     color="cyan"
+                            mandatory
                                     borderless
                                     style="flex-flow:row wrap"
                                 >
@@ -378,6 +385,7 @@
                             <div class="mb-5">
                                 <v-btn-toggle
                                     v-model="protocol"
+                            mandatory
                                     color="cyan"
                                     borderless
                                     style="flex-flow:row wrap"
@@ -431,6 +439,7 @@
                                     v-model="abroad"
                                     color="cyan"
                                     borderless
+                            mandatory
                                     style="flex-flow:row wrap"
                                 >
                                     <v-btn value="no">
@@ -470,6 +479,7 @@
                                     v-model="vaccine"
                                     color="cyan"
                                     borderless
+                            mandatory
                                     style="flex-flow:row wrap"
                                 >
                                     <v-btn value="no">
@@ -485,32 +495,77 @@
 
                             <v-btn
                                 color="primary"
-                                @click="e6 = 1"
+                                @click="predict()"
                             >
-                                Continue
+                                Start Predict
                             </v-btn>
                             <v-btn text
-                                @click="e6 = 6">
-                                Cancel
+                               @click="restart()">
+                                Restart
                             </v-btn>
                             </v-stepper-content>
 
                     </v-stepper>
                 </div>
             </v-col>
-            <v-col cols="12" md="6" lg="6" xl="6" class="visualArea no-gutters">
+            <v-col cols="12" md="6" lg="6" xl="6" class="visualArea no-gutters" :style="getStyleVisualArea">
                 <div class="visualImg">
-                    <img src="~assets/img/women-very-low.png"/>
+                    <v-fade-transition leave-absolute hide-on-leave>
+                        <img v-if="gender=='female'&&(output==''||output=='Not Infected')" src="~assets/img/women-very-low.png"/>
+                    </v-fade-transition>
+                    <v-fade-transition leave-absolute hide-on-leave>
+                        <img v-if="gender=='female'&&output=='Infected - High chance to recover'" src="~assets/img/women-high.png"/>
+                    </v-fade-transition>
+                    <v-fade-transition leave-absolute hide-on-leave>
+                        <img v-if="gender=='female'&&output=='Infected - Low chance to recover'" src="~assets/img/women-very-high.png"/>
+                    </v-fade-transition>
+                    <v-fade-transition leave-absolute hide-on-leave>
+                        <img v-if="gender!='female'&&(output==''||output=='Not Infected')" src="~assets/img/men-very-low.png"/>
+                    </v-fade-transition>
+                    <v-fade-transition leave-absolute hide-on-leave>
+                        <img v-if="gender!='female'&&output=='Infected - High chance to recover'" src="~assets/img/man-high.png"/>
+                    </v-fade-transition>
+                    <v-fade-transition leave-absolute hide-on-leave>
+                        <img v-if="gender!='female'&&output=='Infected - Low chance to recover'" src="~assets/img/man-very-high.png"/>
+                    </v-fade-transition>
                 </div>
-                <div class="infoArea">
-                    <div class="infectionVal">
+                <div class="infoArea" v-if="output=='Not Infected'">
+                    <div class="infectionVal" style="background-color:#00db9a">
                         <span style="font-size:0.8em;">Prediction Result:</span> <br/>
-                        <b style="font-size:1.2em">Infected - high change to recover</b>
+                        <b style="font-size:1.2em">Not Infected</b>
                     </div>
-                    <div class="white--text mt-5" style="font-size:0.8em">Our system predicted that you are more likely infected by covid-19. Please visit the nearest hospital as soon as possible<a href="https://www.google.com/maps/search/hospital" target="_blank">here</a>.</div>
+                    <div class="white--text mt-5 px-5" style="font-size:0.8em">Our system predicted that you are <b>Not Infected</b>. Keep pyshical disntancing and wear your mask to reduce chance of getting infected. If you not feeling good someday please visit the nearest hospital here.<a href="https://www.google.com/maps/search/hospital" target="_blank">here</a>.</div>
+                </div>
+                <div class="infoArea" v-if="output=='Infected - High chance to recover'">
+                    <div class="infectionVal"  style="background-color:#8c0000">
+                        <span style="font-size:0.8em;">Prediction Result:</span> <br/>
+                        <b style="font-size:1.2em;background-color:#8c0000">Infected - High change to recover</b>
+                    </div>
+                    <div class="white--text mt-5 px-5" style="font-size:0.8em">Our system predicted that you are <b>More likely Infected</b> by covid-19. Please visit the nearest hospital as soon as possible<a href="https://www.google.com/maps/search/hospital" target="_blank">here</a>.</div>
+                </div>
+                <div class="infoArea" v-if="output=='Infected - Low chance to recover'">
+                    <div class="infectionVal" style="background-color:#8c0000">
+                        <span style="font-size:0.8em;">Prediction Result:</span> <br/>
+                        <b style="font-size:1.2em;">Infected - Low chance to recover</b>
+                    </div>
+                    <div class="white--text mt-5" style="font-size:0.8em">Our system predicted that you are <b>Infected</b> by covid-19. Please visit the nearest hospital as soon as possible<a href="https://www.google.com/maps/search/hospital" target="_blank">here</a>.</div>
                 </div>
             </v-col>
         </v-row>
+
+        <v-dialog
+            v-model="dialog"
+            persistent
+            width="300"
+            >
+            <v-card style="padding:100px 10px;display:flex;alig-items:center;justify-content:center;" dark>
+                <div class="text-center">
+                <v-progress-circular :size="100" :width="20" indeterminate color="purple"></v-progress-circular>
+                <div class="mt-10" >Generating Prediction Result</div>
+                </div>
+            </v-card>
+    </v-dialog>
+
     </v-container fluid>
 </template>
 
@@ -518,8 +573,9 @@
 export default {
     data(){
         return {
+            dialog:false,
             e6:1,
-            gender:'women',
+            gender:'female',
             age:'20-30',
             smoking:'no',
             chest:'no',
@@ -528,7 +584,75 @@ export default {
             illness:'none',
             protocol:'very good',
             abroad:'no',
-            vaccine:'yes'
+            vaccine:'yes',
+            output:''
+        }
+    },
+    methods:{
+        restart(){
+            this.e6=1
+            this.output=''
+        },
+        predict(){
+            this.dialog="true"
+            setTimeout(()=>{
+                this.dialog=false
+                
+                if(this.oxygen=='<80%'||this.oxygen=='80-85%'){
+                    if(this.age=='>60'||this.age=='50-60'){
+                        this.output = 'Infected - Low chance to recover'
+                    }else{
+                        this.output = 'Infected - High chance to recover'
+                    }
+                }else if(this.oxygen=='90-95%'){
+                    if(this.age=='>60'||this.age=='50-60'){
+                        if(this.chest=='almost every day' || this.chest=='almost every day and very sore'){
+                            this.output = 'Infected - Low chance to recover'
+                        }else{
+                            this.output = 'Infected - High chance to recover'
+                        }
+                    }else{
+                        if(this.chest=='almost every day and very sore'){
+                            this.output = 'Infected - Low chance to recover'
+                        }else{
+                            this.output = 'Infected - High chance to recover'
+                        }
+                    }
+                }else {
+                    if(this.age=='>60'||this.age=='50-60'){
+                        if(this.chest=='almost every day' || this.chest=='almost every day and very sore'){
+                            this.output = 'Infected - Low chance to recover'
+                        }else{
+                            this.output = 'Infected - High chance to recover'
+                        }
+                    }else{
+                        if(this.chest=='almost every day and very sore'){
+                            this.output = 'Infected - High chance to recover'
+                        }else{
+                            this.output = 'Not Infected'
+                        }
+                    }
+                }
+                console.log(this.output)
+            }, 2000);
+        }
+    },
+    computed:{
+        getStyleVisualArea:function(){   
+
+            if(this.output=='Infected - High chance to recover'||this.output=='Infected - Low chance to recover'){
+                return 'background: rgb(165,21,21);background: radial-gradient(circle, rgba(165,21,21,1) 0%, rgba(0,0,0,1) 63%)'
+            }
+
+            if(this.output=='Not Infected'){
+                return 'background: rgb(13,145,141);background: radial-gradient(circle, rgba(13,145,141,1) 0%, rgba(0,0,0,1) 100%);'
+            }
+            
+            if(this.output==''){
+                return 'background: rgb(20,84,138);background: radial-gradient(circle, rgba(20,84,138,1) 0%, rgba(32,76,134,1) 0%, rgba(0,0,0,1) 100%)'
+            }
+  
+            
         }
     }
 }
@@ -537,8 +661,6 @@ export default {
 <style lang="scss">
 
 .visualArea {
-  background: rgb(165,21,21);
-  background: radial-gradient(circle, rgba(165,21,21,1) 0%, rgba(0,0,0,1) 63%);
   min-height: 100vh;
   padding-bottom:100px;
   display:flex;
@@ -549,8 +671,6 @@ export default {
 }
 
 .infectionVal {
-    background: rgb(117,24,24);
-    background: linear-gradient(270deg, rgba(117,24,24,1) 0%, rgba(255,0,0,1) 100%);
     color:#fff;
     padding:10px;
     font-size:1.5em;
